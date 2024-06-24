@@ -1,4 +1,5 @@
 #include "AK4619VN.h"
+#include <Wire.h>
 
 #ifndef ESP_ARDUINO_VERSION_MAJOR
 #warning This library is tested only with the Arduino ESP32 platform, version 1.x.x and 2.x.x
@@ -13,8 +14,81 @@ AK4619VN::AK4619VN(TwoWire *i2c, uint8_t i2cAddress) {
   m_addr = i2cAddress;
 }
 
+/*
+  Name: readReg
+
+  Description:
+    Read a register from the codec.
+
+  Input Parameters:
+    reg - Register address.
+
+  Return:
+    Register value.
+*/
+
+// uint8_t AK4619VN::readReg(uint8_t reg) {
+//   int data;
+
+//   m_i2c->beginTransmission(m_addr);
+//   if (m_i2c->write(reg) == 0) {
+//     log_e("Error writing register address 0x%02x.", reg);
+//     return 0;
+//   }
+
+//   if (m_i2c->endTransmission(false) != 0) {
+//     log_e("Error ending transmission.");
+//     return 0;
+//   }
+
+//   if (!m_i2c->requestFrom(m_addr, (uint8_t)1)) {
+//     log_e("Error requesting data.");
+//     return 0;
+//   }
+
+//   if ((data = m_i2c->read()) < 0) {
+//     log_e("Error reading data.");
+//     return 0;
+//   }
+
+//   return (uint8_t)data;
+// }
+
+/*
+  Name: writeReg
+
+  Description:
+    Write a register to the ES8388 codec.
+
+  Input Parameters:
+    reg - Register address.
+    data - Data to write.
+*/
+
+// void AK4619VN::writeReg(uint8_t reg, uint8_t data) {
+//   m_i2c->beginTransmission(_addr);
+
+//   if (m_i2c->write(reg) == 0) {
+//     log_e("Error writing register address 0x%02x.", reg);
+//     return;
+//   }
+
+//   if (m_i2c->write(data) == 0) {
+//     log_e("Error writing data 0x%02x.", data);
+//     return;
+//   }
+
+//   if (m_i2c->endTransmission(true) != 0) {
+//     log_e("Error ending transmission.");
+//     return;
+//   }
+// }
+
+
 void AK4619VN::begin(uint8_t SDA, uint8_t SCL ) {
-  m_i2c->begin(SDA, SCL);
+  m_i2c->setSDA(SDA);
+  m_i2c->setSCL(SCL);
+  m_i2c->begin();
 }
 
 void AK4619VN::begin(void){
@@ -532,6 +606,50 @@ uint8_t AK4619VN::readRegMulti(uint8_t startReg, uint8_t len, uint8_t * vals) {
   return(m_i2c->endTransmission(true)); //Send STOP
 }
 #endif
+
+
+#if not defined ESP_ARDUINO_VERSION_MAJOR
+uint8_t AK4619VN::writeReg(uint8_t deviceReg, uint8_t regVal) {
+  
+  m_i2c->beginTransmission(m_addr);
+  m_i2c->write(deviceReg);
+  m_i2c->write(regVal);
+  return(m_i2c->endTransmission(true)); // Send STOP
+}
+
+uint8_t AK4619VN::readReg(uint8_t deviceReg, uint8_t * regVal) {
+  
+  m_i2c->beginTransmission(m_addr);
+  m_i2c->write(deviceReg);
+  m_i2c->endTransmission(true);
+  
+  uint8_t numbytes = 0;
+  numbytes = m_i2c->requestFrom(m_addr, (uint8_t)1, (uint8_t)false);
+  
+  if((bool)numbytes){
+    Wire.readBytes(regVal, numbytes);
+  }
+  
+  return(m_i2c->endTransmission(true)); //Send STOP
+}
+
+uint8_t AK4619VN::readRegMulti(uint8_t startReg, uint8_t len, uint8_t * vals) {
+  
+  m_i2c->beginTransmission(m_addr);
+  m_i2c->write(startReg);
+  m_i2c->endTransmission(false);
+  
+  uint8_t numbytes = 0;
+  numbytes = m_i2c->requestFrom((uint8_t)m_addr, len, (uint8_t)false);
+  
+  if((bool)numbytes){
+    Wire.readBytes(vals, numbytes);
+  }
+  
+  return(m_i2c->endTransmission(true)); //Send STOP
+}
+#endif
+
 
 //Modify regVal by inVal, check for under/overflow and adjust regVal to min or max
 uint8_t AK4619VN::modifyGainRange(int16_t inVal, uint8_t regVal){

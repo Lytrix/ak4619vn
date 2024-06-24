@@ -5,12 +5,12 @@ AK4619VN codec(&Wire, AK4619VN_ADDR);
 
 void setup() {
   Serial.begin(115200);
-  pinMode(2, OUTPUT);
-  digitalWrite(2, HIGH);
+  pinMode(22, OUTPUT); //PWN on
+  digitalWrite(22, HIGH);
   delay(200);
   
-  codec.begin(4, 16); // SDA, SCL
-  
+  //codec.begin(4, 16); // SDA, SCL for EPS32
+  codec.begin(18, 19); // SDA, SCL for Teensy 4.1
   uint8_t error = 0;
   
   error = codec.setRstState(true); //Set CODEC to reset state for initialization
@@ -25,52 +25,52 @@ void setup() {
   
   error = codec.audioFormatSlotLen(AK4619VN::AK_24BIT, AK4619VN::AK_24BIT);
   if(error){
-    Serial.println("Unable to set slot lenght");
+    Serial.println("Unable to set slot length.");
   }
   
   error = codec.audioFormatMode(AK4619VN::AK_I2S_STEREO);
   if(error){
-    Serial.println("Unable to set audio format mode");
+    Serial.println("Unable to set audio format mode.");
   }
   
   error = codec.sysClkSet(AK4619VN::AK_256FS_96KS, false, false);// Set sample rate to 96kHz, BICK Edge fall, SDOPH Slow
   if(error){
-    Serial.println("Unable to set system clock mode");
+    Serial.println("Unable to set system clock mode.");
   }
   
   error = codec.inputGain(AK4619VN::AK_INGAIN_0DB, AK4619VN::AK_INGAIN_0DB, AK4619VN::AK_INGAIN_0DB, AK4619VN::AK_INGAIN_0DB); // Set all ADC gains to 0dB
   if(error){
-    Serial.println("Unable to set codec input gain");
+    Serial.println("Unable to set codec input gain.");
   }
   
   error = codec.outputGain(false, AK4619VN::AK_DAC1B, AK4619VN::AK_OUTGAIN_0DB); //Set all DAC1 LR gains to 0dB
   if(error){
-    Serial.println("Unable to set DAC1 gain");
+    Serial.println("Unable to set DAC1 gain.");
   }
   
   error = codec.outputGain(false, AK4619VN::AK_DAC2B, AK4619VN::AK_OUTGAIN_0DB);//Set all DAC2 LR gains to 0dB
   if(error){
     
-    Serial.println("Unable to set DAC2 gain");
+    Serial.println("Unable to set DAC2 gain.");
   }
   
   error = codec.inputConf(AK4619VN::AK_IN_SE1, AK4619VN::AK_IN_SE1, AK4619VN::AK_IN_SE1, AK4619VN::AK_IN_SE1);// Input confing to Single ended 1 on both ADCs
   if(error){
-    Serial.println("Unable to set DAC input conf");
+    Serial.println("Unable to set DAC input configuration.");
   }
   
   error = codec.outputConf(AK4619VN::AK_OUT_SDIN2, AK4619VN::AK_OUT_SDIN1); //DAC2 to SDOUT2, DAC1 to SDOUT1
   if(error){
-    Serial.println("Unable to set DAC input conf");
+    Serial.println("Unable to set DAC input configuration.");
   }
   
   error = codec.setRstState(false); //Release reset state
   if(error){
-    Serial.println("Unable to clear codec reset state");
+    Serial.println("Unable to clear codec reset state.");
   }
   
   delay(100);
-  Serial.println("Setup done");
+  Serial.println("Setup done.");
   
   //Verify settings
   codec.printRegs(0x0, 21);

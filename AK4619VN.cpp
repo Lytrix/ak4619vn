@@ -538,11 +538,12 @@ uint8_t AK4619VN::printRegs(uint8_t startReg, uint8_t len){
       if (i % 4 == 0)
         Serial.print(" ");
     }
-    Serial.print("\t");
-    Serial.print(controlParams[idx]);
-    Serial.print(" ");
+    Serial.print("(");
     Serial.print(regvals[idx], HEX);
-    Serial.println();  // Prints a new line after printing the bits
+    Serial.print(")");
+    Serial.print("\t");
+    Serial.println(controlParams[idx]);  
+    // Serial.println();  // Prints a new line after printing the bits
     
   }
   

@@ -26,7 +26,7 @@
 #define ADC2RVOL 0x09   // ADC2 Rch Digital Volume
 #define ADCFILT 0x0A    // ADC Digital Filter Setting
 #define ADCAIN 0x0B     // ADC Analog Input Setting
-// #define RESERVED 0x0C  // Reserved
+#define RESERVED 0x0C   // Reserved
 #define ADCMUTEHPF 0x0D // ADC Mute & HPF Control
 #define DAC1LVOL 0x0E   // DAC1 Rch Digital Volume
 #define DAC1RVOL 0x0F   // DAC1 Rch Digital Volume
@@ -35,6 +35,32 @@
 #define DACDIN 0x12     // DAC Input Select Setting
 #define DACDEEM 0x13    // DAC De-Emphasis Setting
 #define DACMUTFLT 0x14  // DAC Mute & Filter Setting
+
+// Register control parameter names for debug terminal
+const char controlParams[21][11] = 
+{
+    "PWRMGM",
+    "AUDFORM1",
+    "AUDFORM2",
+    "SYSCLKSET",
+    "MICGAIN1",
+    "MICGAIN2",
+    "ADC1LVOL",
+    "ADC1RVOL",
+    "ADC2LVOL",
+    "ADC2RVOL",
+    "ADCFILT",
+    "ADCAIN",
+    "RESERVED",
+    "ADCMUTEHPF",
+    "DAC1LVOL",
+    "DAC1RVOL",
+    "DAC2LVOL",
+    "DAC2RVOL",
+    "DACDIN",
+    "DACDEEM",
+    "DACMUTFLT"
+};
 
 class AK4619VN {
 public:
@@ -136,32 +162,6 @@ public:
     } output_conf_t;
     
     uint8_t outputConf(output_conf_t DAC2, output_conf_t DAC1);
-
-
-    //##################
-    const char controlParams[20][11] = 
-    {
-    "PWRMGM",
-    "AUDFORM1",
-    "AUDFORM2",
-    "SYSCLKSET",
-    "MICGAIN1",
-    "MICGAIN2",
-    "ADC1LVOL",
-    "ADC1RVOL",
-    "ADC2LVOL",
-    "ADC2RVOL",
-    "ADCFILT",
-    "ADCAIN",
-    "ADCMUTEHPF",
-    "DAC1LVOL",
-    "DAC1RVOL",
-    "DAC2LVOL",
-    "DAC2RVOL",
-    "DACDIN",
-    "DACDEEM",
-    "DACMUTFLT"
-    };
 
     uint8_t printRegs(uint8_t startReg, uint8_t len);
     

@@ -12,26 +12,29 @@
 #define AK4619VN_ADDR 0x10
 #define AK4619VN_ALT_ADDR 0x12
 
-#define PWRMGM 0x0 //
-#define AUDFORM1 0x01 //
-#define AUDFORM2 0x02 //
-#define SYSCLKSET 0x03 //
-#define MICGAIN1 0x04 //
-#define MICGAIN2 0x05 //
-#define ADC1LVOL 0x06 //
-#define ADC1RVOL 0x07 //
-#define ADC2LVOL 0x08 //
-#define ADC2RVOL 0x09 //
-#define ADCFILT 0x0A 
-#define ADCAIN 0x0B //
-#define ADCMUTEHPF 0x0D
-#define DAC1LVOL 0x0E //
-#define DAC1RVOL 0x0F //
-#define DAC2LVOL 0x10 //
-#define DAC2RVOL 0x11 //
-#define DACDIN 0x12 //
-#define DACDEEM 0x13
-#define DACMUTFLT 0x14
+// ADDRESS Register page 60: 
+// https://www.akm.com/content/dam/documents/products/audio/audio-codec/ak4619vn/ak4619vn-en-datasheet.pdf
+#define PWRMGM 0x0      // Power Management
+#define AUDFORM1 0x01   // Audio I/F Format (I2S/TDM)
+#define AUDFORM2 0x02   // Audio I/F Format (Word/Slot)
+#define SYSCLKSET 0x03  // System Clock Setting
+#define MICGAIN1 0x04   // MIC AMP Gain L & R
+#define MICGAIN2 0x05   // MIC AMP Gain L & R
+#define ADC1LVOL 0x06   // ADC1 Lch Digital Volume
+#define ADC1RVOL 0x07   // ADC1 Rch Digital Volume
+#define ADC2LVOL 0x08   // ADC2 Lch Digital Volume
+#define ADC2RVOL 0x09   // ADC2 Rch Digital Volume
+#define ADCFILT 0x0A    // ADC Digital Filter Setting
+#define ADCAIN 0x0B     // ADC Analog Input Setting
+// #define RESERVED 0x0C  // Reserved
+#define ADCMUTEHPF 0x0D // ADC Mute & HPF Control
+#define DAC1LVOL 0x0E   // DAC1 Rch Digital Volume
+#define DAC1RVOL 0x0F   // DAC1 Rch Digital Volume
+#define DAC2LVOL 0x10   // DAC2 Lch Digital Volume
+#define DAC2RVOL 0x11   // DAC2 Rch Digital Volume
+#define DACDIN 0x12     // DAC Input Select Setting
+#define DACDEEM 0x13    // DAC De-Emphasis Setting
+#define DACMUTFLT 0x14  // DAC Mute & Filter Setting
 
 class AK4619VN {
 public:
@@ -78,6 +81,8 @@ public:
     uint8_t audioFormatSlotLen(data_bit_length_t IDL, data_bit_length_t ODL);
     uint8_t audioFormatMode(audio_iface_format_t FORMAT);
     uint8_t sysClkSet(clk_fs_t FS, bool BICKEdg, bool SDOPH);
+    uint8_t muteADCHPF(bool ATSPAD, bool AD2MUTE, bool AD1MUTE, bool AD2HPFN, bool AD1HPFN);
+
     //###############    
     typedef enum{
         AK_INGAIN_N6DB = 0x0,
@@ -131,7 +136,33 @@ public:
     } output_conf_t;
     
     uint8_t outputConf(output_conf_t DAC2, output_conf_t DAC1);
-    
+
+
+    //##################
+    const char controlParams[20][11] = 
+    {
+    "PWRMGM",
+    "AUDFORM1",
+    "AUDFORM2",
+    "SYSCLKSET",
+    "MICGAIN1",
+    "MICGAIN2",
+    "ADC1LVOL",
+    "ADC1RVOL",
+    "ADC2LVOL",
+    "ADC2RVOL",
+    "ADCFILT",
+    "ADCAIN",
+    "ADCMUTEHPF",
+    "DAC1LVOL",
+    "DAC1RVOL",
+    "DAC2LVOL",
+    "DAC2RVOL",
+    "DACDIN",
+    "DACDEEM",
+    "DACMUTFLT"
+    };
+
     uint8_t printRegs(uint8_t startReg, uint8_t len);
     
     

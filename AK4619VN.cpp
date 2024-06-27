@@ -1,9 +1,9 @@
 #include "AK4619VN.h"
 #include <Wire.h>
 
-#ifndef ESP_ARDUINO_VERSION_MAJOR
-#warning This library is tested only with the Arduino ESP32 platform, version 1.x.x and 2.x.x
-#endif
+// #ifndef ESP_ARDUINO_VERSION_MAJOR
+// #warning This library is tested only with the Arduino ESP32 platform, version 1.x.x and 2.x.x
+// #endif
 
 AK4619VN::AK4619VN(TwoWire *i2c, uint8_t i2cAddress) {
   if(i2c == NULL){
@@ -242,6 +242,28 @@ uint8_t AK4619VN::sysClkSet(clk_fs_t FS, bool BICKEdg, bool SDOPH){
   regval |= (tempval & 0x03);
   
   return (writeReg(AUDFORM1, regval));
+}
+
+// Set timing digital vollume, ADC mutes and HPF filter
+/* atspad  - time interval digital volume 4/fs 21ms @ 48kHz (default= false) or 16/fs 128ms @ 48kHz (true)
+ * ad2mute - ADC2 Digital soft mute, default = false
+ * ad1mute - ADC1 Digital soft mute, default = false
+ * ad2hpfn - ADC2 DC offset cancel HPF, default enabled = false
+ * ad1hpfn - ADC1 DC offset cancel HPF, default enabled = false
+ */
+
+uint8_t AK4619VN::muteADCHPF(bool atspad, bool ad2mute, bool ad1mute, bool ad1hpfn, bool ad2hpfn){
+  uint8_t regval = 0;
+  uint8_t error = 0;
+  
+  regval = (atspad << 7 | ad2mute << 6 | ad1mute << 5| ad1hpfn << 2 | ad2hpfn << 1);
+  
+  error = writeReg(ADCMUTEHPF, regval);
+  if(error){
+    return error;
+  }
+
+  return (writeReg(ADCMUTEHPF, regval));
 }
 
 uint8_t AK4619VN::inputGain(input_gain_t ADC1L, input_gain_t ADC1R, input_gain_t ADC2L, input_gain_t ADC2R){
@@ -517,6 +539,8 @@ uint8_t AK4619VN::printRegs(uint8_t startReg, uint8_t len){
         Serial.print(" ");
     }
     Serial.print("\t");
+    Serial.print(controlParams[idx]);
+    Serial.print(" ");
     Serial.print(regvals[idx], HEX);
     Serial.println();  // Prints a new line after printing the bits
     

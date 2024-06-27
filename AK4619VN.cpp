@@ -165,7 +165,7 @@ uint8_t AK4619VN::pwrMgm(bool ADC2, bool ADC1, bool DAC2, bool DAC1){
  */
 
 
-uint8_t AK4619VN::audioFormatSlotLen(data_bit_length_t IDL, data_bit_length_t ODL){
+uint8_t AK4619VN::audioFormatSlotLen(slot_start_t SLOT, data_bit_length_t IDL, data_bit_length_t ODL){
   
   uint8_t regval = 0;
   uint8_t error = 0;
@@ -175,7 +175,7 @@ uint8_t AK4619VN::audioFormatSlotLen(data_bit_length_t IDL, data_bit_length_t OD
     return error;
   }
   
-  uint8_t tempval = (IDL << 2 | ODL);
+  uint8_t tempval = (SLOT << 4 | IDL << 2 | ODL);
   
   regval &= 0xF0;
   regval |= tempval;
@@ -220,6 +220,7 @@ uint8_t AK4619VN::audioFormatMode(audio_iface_format_t FORMAT){
   
 }
 
+//  0000 0XXX SYSCLKSET 5 options 
 uint8_t AK4619VN::sysClkSet(clk_fs_t FS, bool BICKEdg, bool SDOPH){
   
   uint8_t regval = 0;
@@ -266,14 +267,14 @@ uint8_t AK4619VN::muteADCHPF(bool atspad, bool ad2mute, bool ad1mute, bool ad1hp
   return (writeReg(ADCMUTEHPF, regval));
 }
 
-uint8_t AK4619VN::inputGain(input_gain_t ADC1L, input_gain_t ADC1R, input_gain_t ADC2L, input_gain_t ADC2R){
+uint8_t AK4619VN::micGain(mic_gain_t MGN1L, mic_gain_t MGN1R, mic_gain_t MGN2L, mic_gain_t MGN2R){
   
   uint8_t regval0 = 0;
   uint8_t regval1 = 0;
   uint8_t error = 0;
   
-  regval0 = (ADC1L << 4 | ADC1R);
-  regval1 = (ADC2L << 4 | ADC2R);
+  regval0 = (MGN1L << 4 | MGN1R);
+  regval1 = (MGN2L << 4 | MGN2R);
   
   error = writeReg(MICGAIN1, regval0);
   if(error){
@@ -284,7 +285,7 @@ uint8_t AK4619VN::inputGain(input_gain_t ADC1L, input_gain_t ADC1R, input_gain_t
   
 }
 
-uint8_t AK4619VN::inputGainChange(bool relative, bool ADC1L, bool ADC1R, bool ADC2L, bool ADC2R, int8_t gain){  
+uint8_t AK4619VN::inputGainChange(bool relative, bool MGN1L, bool MGN1R, bool MGN2L, bool MGN2R, int8_t gain){  
   uint8_t regvals[2] = {0};
   int8_t gains[4] ={0};
   uint8_t error = 0;
@@ -302,10 +303,10 @@ uint8_t AK4619VN::inputGainChange(bool relative, bool ADC1L, bool ADC1R, bool AD
     gains[2] = (regvals[1] >> 4) & 0x0F;
     gains[3] = regvals[1] & 0x0F;
     
-    if(ADC1L) gains[0] += gain;
-    if(ADC1R) gains[1] += gain;
-    if(ADC2L) gains[2] += gain;
-    if(ADC2R) gains[3] += gain;
+    if(MGN1L) gains[0] += gain;
+    if(MGN1R) gains[1] += gain;
+    if(MGN2L) gains[2] += gain;
+    if(MGN2R) gains[3] += gain;
     
     //Check for min/max
     for(uint8_t i=0; i<=3;i++){
@@ -333,10 +334,10 @@ uint8_t AK4619VN::inputGainChange(bool relative, bool ADC1L, bool ADC1R, bool AD
     else if (gain > 11)
       gain = 11;
     
-    if(ADC1L) gains[0] = gain;
-    if(ADC1R) gains[1] = gain;
-    if(ADC2L) gains[2] = gain;
-    if(ADC2R) gains[3] = gain;
+    if(MGN1L) gains[0] = gain;
+    if(MGN1R) gains[1] = gain;
+    if(MGN2L) gains[2] = gain;
+    if(MGN2R) gains[3] = gain;
     
     regvals[0] = (gains[0] << 4 | gains[1]);
     regvals[1] = (gains[2] << 4 | gains[3]);

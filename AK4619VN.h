@@ -73,12 +73,6 @@ public:
     uint8_t pwrMgm(bool ADC2, bool ADC1, bool DAC2, bool DAC1);
     
     //###############
-    typedef enum{
-        AK_24BIT = 0x0,
-        AK_20BIT = 0x01,
-        AK_16BIT = 0x02,
-        AK_32BIT = 0x03,
-    } data_bit_length_t;
     
     //Bit order TDM, DCF[2:0], DSL[1:0], SLOT
     typedef enum{
@@ -94,7 +88,25 @@ public:
         AK_TDM128_MSB_32B = 0x7F,
         AK_TDM256_I2S_32B = 0x57,
     } audio_iface_format_t;
-    
+        
+    uint8_t audioFormatMode(audio_iface_format_t FORMAT);
+
+    typedef enum{
+        AK_LR = 0x0,
+        AK_SLOT = 0x01
+    } slot_start_t;
+
+    //############### 
+    typedef enum{
+        AK_24BIT = 0x0,
+        AK_20BIT = 0x01,
+        AK_16BIT = 0x02,
+        AK_32BIT = 0x03,
+    } data_bit_length_t;
+
+    uint8_t audioFormatSlotLen(slot_start_t SLOT, data_bit_length_t IDL, data_bit_length_t ODL);
+
+    //############### 
     typedef enum{
         AK_256FS_8_48KS = 0x0,
         AK_256FS_96KS = 0x01,
@@ -102,31 +114,49 @@ public:
         AK_512FS_8_48KS = 0x03,
         AK_128FS_192KS = 0x04,
     } clk_fs_t;
-    
-    
-    uint8_t audioFormatSlotLen(data_bit_length_t IDL, data_bit_length_t ODL);
-    uint8_t audioFormatMode(audio_iface_format_t FORMAT);
+
     uint8_t sysClkSet(clk_fs_t FS, bool BICKEdg, bool SDOPH);
+
     uint8_t muteADCHPF(bool ATSPAD, bool AD2MUTE, bool AD1MUTE, bool AD2HPFN, bool AD1HPFN);
 
     //###############    
     typedef enum{
-        AK_INGAIN_N6DB = 0x0,
-        AK_INGAIN_N3DB = 0x01,
-        AK_INGAIN_0DB = 0x02,
-        AK_INGAIN_3DB = 0x03,
-        AK_INGAIN_6DB = 0x04,
-        AK_INGAIN_9DB = 0x05,
-        AK_INGAIN_12DB = 0x06,
-        AK_INGAIN_15DB = 0x07,
-        AK_INGAIN_18DB = 0x08,
-        AK_INGAIN_21DB = 0x09,
-        AK_INGAIN_24DB = 0x0A,
-        AK_INGAIN_27DB = 0x0B,
-    } input_gain_t;
+        AK_MIC_GAIN_NEG6DB = 0x00,
+        AK_MIC_GAIN_NEG3DB = 0x01,
+        AK_MIC_GAIN_0DB = 0x02,
+        AK_MIC_GAIN_3DB = 0x03,
+        AK_MIC_GAIN_6DB = 0x04,
+        AK_MIC_GAIN_9DB = 0x05,
+        AK_MIC_GAIN_12DB = 0x06,
+        AK_MIC_GAIN_15DB = 0x07,
+        AK_MIC_GAIN_18DB = 0x08,
+        AK_MIC_GAIN_21DB = 0x09,
+        AK_MIC_GAIN_24DB = 0x0A,
+        AK_MIC_GAIN_27DB = 0x0B
+    } mic_gain_t;
+        
+    uint8_t micGain(mic_gain_t MGN1L, mic_gain_t MGN1R, mic_gain_t MGN2L, mic_gain_t MGN2R);
+
+    // //###############    
+    // typedef enum{
+    //     AK_IN_GAIN_NEG12DB = 0x48,
+    //     AK_IN_GAIN_NEG9DB = 0x42,
+    //     AK_IN_GAIN_NEG6DB = 0x3C,
+    //     AK_IN_GAIN_NEG3DB = 0x36,
+    //     AK_IN_GAIN_0DB = 0x30,
+    //     AK_IN_GAIN_3DB = 0x2A,
+    //     AK_IN_GAIN_6DB = 0x24,
+    //     AK_IN_GAIN_9DB = 0x1E,
+    //     AK_IN_GAIN_12DB = 0x18,
+    //     AK_IN_GAIN_15DB = 0x12,
+    //     AK_IN_GAIN_18DB = 0x0C,
+    //     AK_IN_GAIN_21DB = 0x06,
+    //     AK_IN_GAIN_24DB = 0x00,
+    //     AK_IN_GAIN_MUTE = 0xFF
+    // } input_gain_t;
     
+    // uint8_t inputGain(input_gain_t ADC1L, input_gain_t ADC1R, input_gain_t ADC2L, input_gain_t ADC2R);
     
-    uint8_t inputGain(input_gain_t ADC1L, input_gain_t ADC1R, input_gain_t ADC2L, input_gain_t ADC2R);
     uint8_t inputGainChange(bool relative, bool ADC1L, bool ADC1R, bool ADC2L, bool ADC2R, int8_t gain);
     
     //###############
@@ -137,7 +167,10 @@ public:
         AK_DAC1R = 0x03,
         AK_DAC2L = 0x04,
         AK_DAC2R = 0x05,
-        AK_OUTGAIN_0DB = 0x30,
+        AK_OUT_GAIN_NEG24DB = 0x48,
+        AK_OUT_GAIN_NEG12DB = 0x30,
+        AK_OUT_GAIN_0DB = 0x18,
+        AK_OUT_GAIN_12DB = 0x00,
         AK_OUT_GAIN_MUTE = 0xFF,
     } output_gain_t;
     

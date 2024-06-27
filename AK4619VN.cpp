@@ -142,18 +142,19 @@ uint8_t AK4619VN::pwrMgm(bool ADC2, bool ADC1, bool DAC2, bool DAC1){
 
 //Set audio format, I&O data length and MCLK and sample freq
 /*
- * slot = 0 - LRCK edge | 1 - Slot length
- * IDL:
+ * SLOT = 0 - LRCK edge | 1 - Slot length
+ *
+ * IDL: (Input Data length)
  * 00 - 24bit
  * 01 - 20bit
  * 10 - 16bit
  * 11 - 32bit
  * 
- * ODL:
- * Samle as IDL except
- * 11 - N/A
+ * ODL: (Output Data length)
+ * Same as IDL except
+ * 11 - N/A 
  * 
- * FS:
+ * FS: (Frequency Sample)
  * bits   MCLK    fs range
  * 000 - 256fs    8 kHz ≦ fs ≦ 48 kHz
  * 001 - 256fs    fs = 96 kHz
@@ -161,9 +162,8 @@ uint8_t AK4619VN::pwrMgm(bool ADC2, bool ADC1, bool DAC2, bool DAC1){
  * 011 - 512fs    8 kHz ≦ fs ≦ 48 kHz
  * 1xx - 128fs    fs = 192 kHz
  * ** For all FS BICK in range 32, 48, 64, 128, 256fs
- * ** except 1xx which exclude 256fs
+ * ** except 1xx which only allows 128fs
  */
-
 
 uint8_t AK4619VN::audioFormatSlotLen(slot_start_t SLOT, data_bit_length_t IDL, data_bit_length_t ODL){
   
@@ -180,67 +180,59 @@ uint8_t AK4619VN::audioFormatSlotLen(slot_start_t SLOT, data_bit_length_t IDL, d
   regval &= 0xF0;
   regval |= tempval;
   
+  error = readReg(AUDFORM2, &regval);
+  if(error){
+    return error;
+  }
   
   return (writeReg(AUDFORM2, regval));
   
 }
 
 //Set audio format mode 
-uint8_t AK4619VN::audioFormatMode(audio_iface_format_t FORMAT){
-  
-  uint8_t regval0 = 0;
-  uint8_t regval1 = 0;
-  uint8_t error = 0;
-  
-  error = readReg(AUDFORM1, &regval0);
-  if(error){
-    return error;
-  }
-  
-  error = readReg(AUDFORM2, &regval1);
-  if(error){
-    return error;
-  }
-  
-  //Clear upper 6 bits, shift FORMAT by 2 and set it
-  regval0 &= 0x03;
-  int temp = FORMAT << 2;
-  regval0 |= temp;
-  
-  regval1 &= ~(0x08); //Mask 4th bit and NOT it
-  int tempval = (FORMAT & 0x01); // Set tempval to 1st bit of FORMAT
-  regval1 |= (tempval << 3); // Set 4th bit to tempval
-  
-  error = writeReg(AUDFORM1, regval0);
-  if(error){
-    return error;
-  }
-  
-  return (writeReg(AUDFORM2, regval1));
-  
-}
-
-//  0000 0XXX SYSCLKSET 5 options 
-uint8_t AK4619VN::sysClkSet(clk_fs_t FS, bool BICKEdg, bool SDOPH){
+uint8_t AK4619VN::audioFormatMode(audio_iface_format_t FORMAT, bool BICK_RISING, bool SDOUT_FAST_MODE){
   
   uint8_t regval = 0;
   uint8_t error = 0;
-  
-  error = writeReg(SYSCLKSET, FS);
-  if(error){
-    return error;
-  }
-  
-  
-  uint8_t tempval  = (BICKEdg << 1 | SDOPH);
   
   error = readReg(AUDFORM1, &regval);
   if(error){
     return error;
   }
+  //Clear upper 6 bits, shift FORMAT by 2 and set it
+  // regval &= 0x03;
+  regval = (FORMAT << 2 | BICK_RISING << 1 | SDOUT_FAST_MODE);
   
-  regval &= 0xFC;
-  regval |= (tempval & 0x03);
+  // regval1 &= ~(0x08); //Mask 4th bit and NOT it
+  // int tempval = (FORMAT & 0x01); // Set tempval to 1st bit of FORMAT
+  // regval1 |= (tempval << 3); // Set 4th bit to tempval
+  
+  error = writeReg(AUDFORM1, regval);
+  if(error){
+    return error;
+  }
+  
+  return (writeReg(AUDFORM1, regval));
+  
+}
+
+//  0000 0XXX SYSCLKSET 5 options 
+uint8_t AK4619VN::sysClkSet(clk_fs_t FS){
+  
+  uint8_t regval = 0;
+  uint8_t error = 0;
+  
+  regval = FS;
+
+  error = writeReg(SYSCLKSET, regval);
+  if(error){
+    return error;
+  }
+  
+  error = readReg(AUDFORM1, &regval);
+  if(error){
+    return error;
+  }
   
   return (writeReg(AUDFORM1, regval));
 }

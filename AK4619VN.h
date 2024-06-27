@@ -74,22 +74,23 @@ public:
     
     //###############
     
-    //Bit order TDM, DCF[2:0], DSL[1:0], SLOT
-    typedef enum{
-        AK_I2S_STEREO = 0x0,
-        AK_MSB_STEREO = 0x28,
-        AK_PCM_SHRT_16B = 0x35,
-        AK_PCM_SHRT_24B = 0x31,
-        AK_PCM_SHRT_32B = 0x37,
-        AK_PCM_LONG_16B = 0x3D,
-        AK_PCM_LONG_24B = 0x39,
-        AK_PCM_LONG_32B = 0x3F,
-        AK_TDM128_I2S_32B = 0x57,
-        AK_TDM128_MSB_32B = 0x7F,
-        AK_TDM256_I2S_32B = 0x57,
+    //Bit order TDM, DCF[2:0], DSL[1:0], BCKP, SDOPH
+    typedef enum{   
+        AK_I2S_STEREO = 0x0,        // 0 000 00 X X
+        AK_MSB_STEREO = 0x14,       // 0 101 00 X X
+        AK_PCM_SHRT_16B = 0x3A,     // 1 110 10 X X 
+        AK_PCM_SHRT_24B = 0x38,     // 1 110 00 X X 
+        AK_PCM_SHRT_32B = 0x3B,     // 1 110 11 X X 
+        AK_PCM_LONG_16B = 0x3E,     // 1 111 10 X X 
+        AK_PCM_LONG_24B = 0x3C,     // 1 111 00 X X 
+        AK_PCM_LONG_32B = 0x3F,     // 1 111 11 X X 
+        AK_TDM128_I2S_32B = 0x2B,   // 1 010 11 X X
+        AK_TDM128_MSB_32B = 0x3F,   // 1 111 11 X X 
+        AK_TDM256_I2S_32B = 0x2B,   // 1 010 11 X X
+        AK_TDM256_MSB_32B = 0x3F,   // 1 111 11 X X 
     } audio_iface_format_t;
-        
-    uint8_t audioFormatMode(audio_iface_format_t FORMAT);
+
+    uint8_t audioFormatMode(audio_iface_format_t FORMAT, bool BICK_RISING, bool SDOUT_FAST_MODE);
 
     typedef enum{
         AK_LR = 0x0,
@@ -115,7 +116,7 @@ public:
         AK_128FS_192KS = 0x04,
     } clk_fs_t;
 
-    uint8_t sysClkSet(clk_fs_t FS, bool BICKEdg, bool SDOPH);
+    uint8_t sysClkSet(clk_fs_t FS);
 
     uint8_t muteADCHPF(bool ATSPAD, bool AD2MUTE, bool AD1MUTE, bool AD2HPFN, bool AD1HPFN);
 
